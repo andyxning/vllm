@@ -19,7 +19,7 @@ TEXTS_2 = [
     "Bio-Hautpflege für empfindliche Haut mit Aloe Vera und Kamille",
     "Neue Make-up-Trends setzen auf kräftige Farben und innovative Techniken",  # noqa: E501
     "Cuidado de la piel orgánico para piel sensible con aloe vera y manzanilla",  # noqa: E501
-    "Las nuevas tendencias de maquillaje se centran en colores vivos y técnicas innovadoras",  # noqa: E501
+    "Las nuevas tendencies de maquillaje se centran en colores vivos y técnicas innovadoras",  # noqa: E501
     "针对敏感肌专门设计的天然有机护肤产品",
     "新的化妆趋势注重鲜艳的颜色和创新的技巧",
     "敏感肌のために特別に設計された天然有機スキンケア製品",

@@ -302,7 +302,7 @@ void moe_align_block_size(torch::Tensor topk_ids, int64_t num_experts,
   int device_max_shared_mem;
   auto dev = topk_ids.get_device();
   cudaDeviceGetAttribute(&device_max_shared_mem,
-                         cudaDevAttrMaxSharedMemoryPerBlockOptin, dev);
+                         cudaDevAttrMaxSharedMemoryPerBlockOption, dev);
 
   const int32_t num_thread = max((int32_t)num_experts, WARP_SIZE);
   const int32_t shared_mem_i32 =

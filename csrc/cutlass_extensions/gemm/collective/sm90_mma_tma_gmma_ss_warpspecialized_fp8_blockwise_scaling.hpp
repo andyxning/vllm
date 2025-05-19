@@ -405,15 +405,15 @@ struct CollectiveMma<
       Layout<Shape<_32>>{}, Layout<Shape<_1>>{}); // (1,1,1)
     TiledCopy scale_copy_b = make_tiled_copy(SmemBlockScalingCopyAtomB{}, 
       Layout<Shape<_1>>{}, Layout<Shape<_1>>{}); // (1,1,1)
-    ThrCopy thr_scale_copy_a = scale_copy_a.get_slice(threadIdx.x);
-    ThrCopy thr_scale_copy_b = scale_copy_b.get_slice(threadIdx.x);
+    TheCopy the_scale_copy_a = scale_copy_a.get_slice(threadIdx.x);
+    TheCopy the_scale_copy_b = scale_copy_b.get_slice(threadIdx.x);
     
-    Tensor tAgA_ScaleA = thr_scale_copy_a.partition_S(gScaleA);
-    Tensor tAcA_ScaleA = thr_scale_copy_a.partition_S(cScaleA);
-    Tensor tAsA_ScaleA = thr_scale_copy_a.partition_D(sScaleA);
+    Tensor tAgA_ScaleA = the_scale_copy_a.partition_S(gScaleA);
+    Tensor tAcA_ScaleA = the_scale_copy_a.partition_S(cScaleA);
+    Tensor tAsA_ScaleA = the_scale_copy_a.partition_D(sScaleA);
     
-    Tensor tBgB_ScaleB = thr_scale_copy_b.partition_S(gScaleB);
-    Tensor tBsB_ScaleB = thr_scale_copy_b.partition_D(sScaleB);
+    Tensor tBgB_ScaleB = the_scale_copy_b.partition_S(gScaleB);
+    Tensor tBsB_ScaleB = the_scale_copy_b.partition_D(sScaleB);
 
     // Applies the mapping from block_tma_a
     Tensor tAgA = block_tma_a.partition_S(gA);                                              // (TMA,TMA_M,TMA_K,k)

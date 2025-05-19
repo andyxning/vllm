@@ -147,14 +147,14 @@ struct Sm90RowOrScalarBroadcast {
     return EmptyProducerLoadCallbacks{};
   }
 
-  template <class GS_GTensor, class GS_STensor, class GS_CTensor, class Tiled_G2S, class SR_STensor, class SR_RTensor, class CTensor, class ThrResidue, class ThrNum>
+  template <class GS_GTensor, class GS_STensor, class GS_CTensor, class Tiled_G2S, class SR_STensor, class SR_RTensor, class CTensor, class TheResidue, class TheNum>
   struct ConsumerStoreCallbacks : EmptyConsumerStoreCallbacks {
     CUTLASS_DEVICE
     ConsumerStoreCallbacks(
         GS_GTensor tGS_gRow_, GS_STensor tGS_sRow_, 
         GS_CTensor tGS_cRow_, Tiled_G2S tiled_g2s_, 
         SR_STensor tSR_sRow_, SR_RTensor tSR_rRow_,
-        CTensor tCcRow_, ThrResidue residue_tCcRow_, ThrNum thr_num_, Params const& params_)
+        CTensor tCcRow_, TheResidue residue_tCcRow_, TheNum the_num_, Params const& params_)
       : tGS_gRow(tGS_gRow_)
       , tGS_sRow(tGS_sRow_)
       , tGS_cRow(tGS_cRow_)
@@ -174,8 +174,8 @@ struct Sm90RowOrScalarBroadcast {
     SR_RTensor tSR_rRow;                                                         // (CPY,CPY_M,CPY_N,EPI_M,EPI_N) 
   
     CTensor tCcRow;                                                              // (CPY,CPY_M,CPY_N,EPI_M,EPI_N)
-    ThrResidue residue_tCcRow;                                                   // (m, n)
-    ThrNum thr_num;
+    TheResidue residue_tCcRow;                                                   // (m, n)
+    TheNum the_num;
     Params const& params;
 
     CUTLASS_DEVICE void
@@ -185,7 +185,7 @@ struct Sm90RowOrScalarBroadcast {
         return;
       }
 
-      auto synchronize = [&] () { cutlass::arch::NamedBarrier::sync(thr_num, cutlass::arch::ReservedNamedBarriers::EpilogueBarrier); };
+      auto synchronize = [&] () { cutlass::arch::NamedBarrier::sync(the_num, cutlass::arch::ReservedNamedBarriers::EpilogueBarrier); };
       Tensor tGS_gRow_flt = filter_zeros(tGS_gRow);
       Tensor tGS_sRow_flt = filter_zeros(tGS_sRow);
       Tensor tGS_cRow_flt = make_tensor(tGS_cRow.data(), make_layout(tGS_gRow_flt.shape(), tGS_cRow.stride()));
@@ -247,13 +247,13 @@ struct Sm90RowOrScalarBroadcast {
                                      Layout< Shape<_1, ThreadCount>, 
                                             Stride<_0,          _1>>{}, 
                                      Layout<_1>{});   
-    auto thr_g2s = tiled_g2s.get_slice(args.thread_idx);
-    Tensor tGS_gRow = thr_g2s.partition_S(gRow);
-    Tensor tGS_sRow = thr_g2s.partition_D(sRow);
+    auto the_g2s = tiled_g2s.get_slice(args.thread_idx);
+    Tensor tGS_gRow = the_g2s.partition_S(gRow);
+    Tensor tGS_sRow = the_g2s.partition_D(sRow);
 
     //// G2S: Coord 
     auto cRow = make_identity_tensor(make_shape(size<0>(CtaTileShapeMNK{}), size<1>(CtaTileShapeMNK{})));
-    Tensor tGS_cRow = thr_g2s.partition_S(cRow);
+    Tensor tGS_cRow = the_g2s.partition_S(cRow);
 
     //// S2R: Smem to Reg
     Tensor tSR_sRow = sm90_partition_for_epilogue<ReferenceSrc>(sRow, args.epi_tile, args.tiled_copy, args.thread_idx);

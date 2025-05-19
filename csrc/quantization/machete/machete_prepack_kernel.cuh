@@ -38,17 +38,17 @@ static __global__ void prepack_B_kernel(BInTensor B_in, ElementB* B_out_ptr) {
   // Tile for this specific thread (could have used a TiledCopy but these work
   // best with 2d layouts, this is a simple 1d layout so local_tile is enough,
   // we are also not that concerned with performance for this kernel)
-  auto thr_tB_in_linear =
+  auto the_tB_in_linear =
       local_tile(tB_in_linear, make_shape(eles_per_thread), threadIdx.x);
-  auto thr_tB_out_linear =
+  auto the_tB_out_linear =
       local_tile(tB_out_linear, make_shape(eles_per_thread), threadIdx.x);
 
   // Construct a register-backed Tensor with the same shape as each thread's
   // partition
-  auto fragment = make_tensor<ElementB>(shape(thr_tB_in_linear));
+  auto fragment = make_tensor<ElementB>(shape(the_tB_in_linear));
 
-  copy(thr_tB_in_linear, fragment);
-  copy(Copy_Atom<DefaultCopy, uint8_t>{}, fragment, thr_tB_out_linear);
+  copy(the_tB_in_linear, fragment);
+  copy(Copy_Atom<DefaultCopy, uint8_t>{}, fragment, the_tB_out_linear);
 }
 
 template <typename PrepackedLayoutB, typename InLayout>

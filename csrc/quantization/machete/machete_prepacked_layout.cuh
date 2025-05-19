@@ -107,26 +107,26 @@ struct PrepackedLayoutBTemplate {
       AtomLayoutMNK{}));
 
   // Prepacked block, (athrid, val) -> (N,K)
-  // i.e. ((ThrV,(ThrN,ThrK)),(FrgV,(RestN,RestK,...))) -> (N,K)
+  // i.e. ((TheV,(TheN,TheK)),(FrgV,(RestN,RestK,...))) -> (N,K)
   CUTE_HOST_DEVICE static constexpr auto ppblock_TV_to_NK() {
     return TiledMma{}.thrfrg_A(make_layout(PPBlockShape_NK{}));
   }
 
   // Prepacked block, (N,K) -> (athrid, val)
-  // i.e. (N,K) -> ((ThrV,(ThrN,ThrK)),(FrgV,(RestN,RestK,...)))
+  // i.e. (N,K) -> ((TheV,(TheN,TheK)),(FrgV,(RestN,RestK,...)))
   CUTE_HOST_DEVICE static constexpr auto ppblock_NK_to_TV() {
     return right_inverse(ppblock_TV_to_NK()).with_shape(PPBlockShape_NK{});
   }
 
   // Prepacked block, (athrid, val) -> (storage_offset)
-  // i.e. ((ThrV,(ThrN,ThrK)),(FrgV,(RestN,RestK,...))) -> (storage_idx)
+  // i.e. ((TheV,(TheN,TheK)),(FrgV,(RestN,RestK,...))) -> (storage_idx)
   CUTE_HOST_DEVICE static constexpr auto ppblock_TV_to_offset() {
     // Return iterleaved layout
     return make_ordered_layout(shape(ppblock_TV_to_NK()), Step<_1, _0>{});
   }
 
   // Prepacked block, (athrid, val) -> (storage_offset)
-  // i.e. ((ThrV,(ThrM,ThrK)),(IlvdFrgV,(RestM,RestK,...))) -> (storage_idx)
+  // i.e. ((TheV,(TheM,TheK)),(IlvdFrgV,(RestM,RestK,...))) -> (storage_idx)
   CUTE_HOST_DEVICE static constexpr auto ppblock_ilvd_TV_to_offset() {
     auto layout_no_interleave =
         make_ordered_layout(shape(ppblock_TV_to_NK()), Step<_1, _0>{});

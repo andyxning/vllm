@@ -97,7 +97,7 @@ MSGS = [
         "content":
         "",
         "tool_calls": [{
-            "id": "bbc5b7ede",
+            "id": "bbc5b7edge",
             "type": "function",
             "function": {
                 "name":
@@ -111,7 +111,7 @@ MSGS = [
         "role": "tool",
         "content":
         "{\"action\":\"rewrite\",\"outcome\":\"My English needs improving, maybe I make errors.\"}",  # noqa
-        "tool_call_id": "bbc5b7ede",
+        "tool_call_id": "bbc5b7edge",
         "name": "rewrite"
     },
     {

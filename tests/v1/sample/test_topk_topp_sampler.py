@@ -16,7 +16,7 @@ VOCAB_SIZE = 128 * 1024
 FLASHINFER_ENABLED = current_platform.is_cuda() and is_flashinfer_available
 
 
-def test_topk_impl_equivalance():
+def test_topk_impl_equivalence():
 
     with torch.device(DEVICE):
         generator = Generator(device=DEVICE).manual_seed(33)

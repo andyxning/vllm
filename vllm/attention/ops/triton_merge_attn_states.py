@@ -75,13 +75,13 @@ def merge_attn_states_kernel(
         out_lse = tl.log(out_se) + max_lse
         tl.store(output_lse + head_idx * num_tokens + token_idx, out_lse)
 
-    head_arange = tl.arange(0, PADDED_HEAD_SIZE)
-    head_mask = head_arange < HEAD_SIZE
+    head_arrange = tl.arange(0, PADDED_HEAD_SIZE)
+    head_mask = head_arrange < HEAD_SIZE
     p_out = tl.load(prefix_output + token_idx * num_heads * HEAD_SIZE +
-                    head_idx * HEAD_SIZE + head_arange,
+                    head_idx * HEAD_SIZE + head_arrange,
                     mask=head_mask)
     s_out = tl.load(suffix_output + token_idx * num_heads * HEAD_SIZE +
-                    head_idx * HEAD_SIZE + head_arange,
+                    head_idx * HEAD_SIZE + head_arrange,
                     mask=head_mask)
 
     # NOTE(woosuk): Be careful with the numerical stability.
@@ -91,6 +91,6 @@ def merge_attn_states_kernel(
     s_scale = s_se / out_se
     out = p_out * p_scale + s_out * s_scale
     tl.store(output + token_idx * num_heads * HEAD_SIZE +
-             head_idx * HEAD_SIZE + head_arange,
+             head_idx * HEAD_SIZE + head_arrange,
              out,
              mask=head_mask)

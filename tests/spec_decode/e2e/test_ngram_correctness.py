@@ -21,7 +21,7 @@ However, we still need to verify below scenario could be passed:
     * Test greedy equality under preemption
     * Test greedy equality under various ngram sizes / speculative sizes
 
-With those tests, we can say at least, ngram spec would not break the correctess
+With those tests, we can say at least, ngram spec would not break the correctness
 for the target model outputs.
 """
 

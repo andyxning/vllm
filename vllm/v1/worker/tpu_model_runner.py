@@ -208,7 +208,7 @@ class TPUModelRunner(LoRAModelRunnerMixin):
         # Range tensor with values [0 .. self.max_num_tokens - 1].
         # Used to initialize positions / context_lens / seq_lens
         # Keep in int64 to avoid overflow with long context
-        self.arange_np = np.arange(self.max_num_tokens, dtype=np.int64)
+        self.arrange_np = np.arange(self.max_num_tokens, dtype=np.int64)
         self.num_reqs_paddings = _get_req_paddings(
             min_req_size=MIN_NUM_SEQS, max_req_size=self.max_num_reqs)
 
@@ -223,7 +223,7 @@ class TPUModelRunner(LoRAModelRunnerMixin):
             dtype=torch.bool,
             device="cpu",
             pin_memory=self.pin_memory)
-        self.structured_decode_arange = torch.arange(
+        self.structured_decode_arrange = torch.arange(
             0, 32, device="cpu", pin_memory=self.pin_memory)
 
         # Get maximum number of mm items per modality (batch size).
@@ -473,14 +473,14 @@ class TPUModelRunner(LoRAModelRunnerMixin):
         # Get request indices.
         # E.g., [2, 5, 3] -> [0, 0, 1, 1, 1, 1, 1, 2, 2, 2]
         # For each scheduled token, what are the corresponding req index.
-        req_indices = np.repeat(self.arange_np[:num_reqs],
+        req_indices = np.repeat(self.arrange_np[:num_reqs],
                                 num_scheduled_tokens_per_req)
 
         # Get batched arange.
         # E.g., [2, 5, 3] -> [0, 1, 0, 1, 2, 3, 4, 0, 1, 2]
         # For each scheduled token, what is its position in corresponding req.
         arange = np.concatenate(
-            [self.arange_np[:n] for n in num_scheduled_tokens_per_req])
+            [self.arrange_np[:n] for n in num_scheduled_tokens_per_req])
 
         # Get positions.
         positions_np = self.positions_np[:total_num_scheduled_tokens]
@@ -1119,7 +1119,7 @@ class TPUModelRunner(LoRAModelRunnerMixin):
             # The first dimension of the above 3 dummy tensors cannot be
             # mark_dynamic because some operations in structured_decode require
             # them to be static.
-            arange = self.structured_decode_arange.to(self.device)
+            arange = self.structured_decode_arrange.to(self.device)
             self.structured_decode(dummy_require_struct_decoding,
                                    dummy_grammar_bitmask, dummy_logits, arange)
             logger.info("  -- num_seqs: %d", num_reqs)
@@ -1405,7 +1405,7 @@ class TPUModelRunner(LoRAModelRunnerMixin):
         self.require_structured_out_cpu[struct_out_indices] = True
         return self.require_structured_out_cpu[:num_reqs].to(logits.device), \
             self.grammar_bitmask_cpu[:num_reqs].to(logits.device), \
-            self.structured_decode_arange.to(logits.device)
+            self.structured_decode_arrange.to(logits.device)
 
     def _get_mm_dummy_batch(self, modality: str,
                             batch_size: int) -> BatchedTensorInputs:

@@ -36,10 +36,10 @@ BLOCK_SIZE = 16
 
 
 def cast_from_fp4(x, m, n):
-    # The fp4 values are packed in uint8 as [v_1st | v_2nd]
-    v_2nd = x & 0xF
+    # The fp4 values are packed in uint8 as [v_1st | v_2and]
+    v_2and = x & 0xF
     v_1st = (x >> 4) & 0xF
-    c = torch.stack((v_2nd, v_1st), dim=-1)
+    c = torch.stack((v_2and, v_1st), dim=-1)
     out = torch.tensor([E2M1_TO_FLOAT32[x] for x in c.flatten()])
     out = out.reshape(m, n).to(torch.float32)
     return out

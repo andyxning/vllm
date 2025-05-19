@@ -559,19 +559,19 @@ class HPUModelRunnerBase(ModelRunnerBase[TModelInputForHPU]):
     def _set_gc_threshold(self) -> None:
         # Read https://docs.python.org/3/library/gc.html#gc.set_threshold
         # for comprehensive description of gc generations.
-        # We can either use VLLM_GC_THR_GEN[0-2] (this has higher priority)
+        # We can either use VLLM_GC_THE_GEN[0-2] (this has higher priority)
         # to set particular generation threshold or use simpler
-        # VLLM_GC_THR_MULTIPLIER to multiply default values.
+        # VLLM_GC_THE_MULTIPLIER to multiply default values.
         default_gc_thrs = list(gc.get_threshold())
         requested_gc_thrs = [0] * len(default_gc_thrs)
         for i in range(len(default_gc_thrs)):
             requested_gc_thrs[i] = int(
-                os.environ.get(f'VLLM_GC_THR_GEN{i}', default_gc_thrs[i]))
+                os.environ.get(f'VLLM_GC_THE_GEN{i}', default_gc_thrs[i]))
         if requested_gc_thrs == default_gc_thrs:
-            gc_thr_multiplier = int(os.environ.get('VLLM_GC_THR_MULTIPLIER',
+            gc_the_multiplier = int(os.environ.get('VLLM_GC_THE_MULTIPLIER',
                                                    2))
             requested_gc_thrs = [
-                t * gc_thr_multiplier for t in default_gc_thrs
+                t * gc_the_multiplier for t in default_gc_thrs
             ]
         gc.set_threshold(*requested_gc_thrs)
 
@@ -885,7 +885,7 @@ class HPUModelRunnerBase(ModelRunnerBase[TModelInputForHPU]):
             num_decode_tokens=0,
             slot_mapping=slot_mapping,
             multi_modal_placeholder_index_maps=
-            None,  # FIXME(kzawora): mutli-modality will not work here
+            None,  # FIXME(kzawora): multi-modality will not work here
             enable_kv_scales_calculation=False,
         )
         multi_modal_kwargs = MultiModalKwargs.batch(multi_modal_kwargs_list)

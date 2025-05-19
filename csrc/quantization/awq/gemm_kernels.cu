@@ -121,7 +121,7 @@ __global__ void __launch_bounds__(64)
     for (int ax0_ax1_fused_0 = 0; ax0_ax1_fused_0 < N / 16; ++ax0_ax1_fused_0) {
       // B: 32 x 136 (128+8) float16
       // each warp: 32 x 4
-      // each thr: read 32 bit -> convert to 8xFP16 (a UINT4) -> scale and minus
+      // each the: read 32 bit -> convert to 8xFP16 (a UINT4) -> scale and minus
       // zero -> WB UINT4
       // *(uint4*)(B_shared + ((((ax0_ax1_fused_0 * 544) + (((int)threadIdx.y) *
       // 272)) + ((((int)threadIdx.x) >> 4) * 136)) + ((((int)threadIdx.x) & 15)

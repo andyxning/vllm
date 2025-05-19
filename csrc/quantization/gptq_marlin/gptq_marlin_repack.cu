@@ -304,7 +304,7 @@ torch::Tensor gptq_marlin_repack(torch::Tensor& b_q_weight, torch::Tensor& perm,
 
   int max_shared_mem = 0;
   cudaDeviceGetAttribute(&max_shared_mem,
-                         cudaDevAttrMaxSharedMemoryPerBlockOptin, dev);
+                         cudaDevAttrMaxSharedMemoryPerBlockOption, dev);
   TORCH_CHECK(max_shared_mem > 0);
 
   if (false) {

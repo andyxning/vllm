@@ -96,9 +96,9 @@ def main(model, dp_size, local_dp_rank, global_dp_rank, dp_master_ip,
     # with DP, each rank should process different prompts.
     # usually all the DP ranks process a full dataset,
     # and each rank processes a different part of the dataset.
-    promts_per_rank = len(prompts) // dp_size
-    start = global_dp_rank * promts_per_rank
-    end = start + promts_per_rank
+    prompts_per_rank = len(prompts) // dp_size
+    start = global_dp_rank * prompts_per_rank
+    end = start + prompts_per_rank
     prompts = prompts[start:end]
     if len(prompts) == 0:
         # if any rank has no prompts to process,

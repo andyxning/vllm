@@ -24,15 +24,15 @@ static __global__ void quantize_q8_1(const scalar_t* __restrict__ x,
   if (ix >= kx_padded) {
     return;
   }
-  const auto iy = blockDim.y * blockIdx.y + threadIdx.y;
-  const int i_padded = iy * kx_padded + ix;
+  const auto it = blockDim.y * blockIdx.y + threadIdx.y;
+  const int i_padded = it * kx_padded + ix;
 
   block_q8_1* y = (block_q8_1*)vy;
 
   const int ib = i_padded / QK8_1;   // block index
   const int iqs = i_padded % QK8_1;  // quant index
 
-  const float xi = ix < kx ? static_cast<float>(x[iy * kx + ix]) : 0.0f;
+  const float xi = ix < kx ? static_cast<float>(x[it * kx + ix]) : 0.0f;
   float amax = fabsf(xi);
   float sum = xi;
 

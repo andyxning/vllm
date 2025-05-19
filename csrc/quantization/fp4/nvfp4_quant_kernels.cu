@@ -298,7 +298,7 @@ cvt_fp16_to_fp4(
 
 template <typename T>
 void invokeFP4Quantization(int m, int n, T const* input, float const* SFScale,
-                           int64_t* output, int32_t* SFOuput, bool useUE8M0,
+                           int64_t* output, int32_t* SFOutput, bool useUE8M0,
                            int multiProcessorCount, cudaStream_t stream) {
   // Grid, Block size.
   // Each thread converts 8 values.
@@ -311,24 +311,24 @@ void invokeFP4Quantization(int m, int n, T const* input, float const* SFScale,
   if (useUE8M0) {
     cvt_fp16_to_fp4<T, true><<<grid, block, 0, stream>>>(
         m, n, input, SFScale, reinterpret_cast<uint32_t*>(output),
-        reinterpret_cast<uint32_t*>(SFOuput));
+        reinterpret_cast<uint32_t*>(SFOutput));
   } else {
     cvt_fp16_to_fp4<T, false><<<grid, block, 0, stream>>>(
         m, n, input, SFScale, reinterpret_cast<uint32_t*>(output),
-        reinterpret_cast<uint32_t*>(SFOuput));
+        reinterpret_cast<uint32_t*>(SFOutput));
   }
 }
 
 // Instantiate the function.
 template void invokeFP4Quantization(int m, int n, half const* input,
                                     float const* SFScale, int64_t* output,
-                                    int32_t* SFOuput, bool useUE8M0,
+                                    int32_t* SFOutput, bool useUE8M0,
                                     int multiProcessorCount,
                                     cudaStream_t stream);
 
 template void invokeFP4Quantization(int m, int n, __nv_bfloat16 const* input,
                                     float const* SFScale, int64_t* output,
-                                    int32_t* SFOuput, bool useUE8M0,
+                                    int32_t* SFOutput, bool useUE8M0,
                                     int multiProcessorCount,
                                     cudaStream_t stream);
 

@@ -1003,7 +1003,7 @@ struct MacheteCollectiveMma {
     static constexpr int A_CPY_VEC =
         decltype(max_common_vector(tCsA, tCrA_load)){};
 
-    static constexpr int COVERSION_WIDTH =
+    static constexpr int CONVERSION_WIDTH =
         std::min(A_CPY_VEC, int(size<0>(tCrA_mma)));
 
     auto load_A_to_registers = [&](int read_stage) {
@@ -1026,8 +1026,8 @@ struct MacheteCollectiveMma {
     // PIPELINED MAIN LOOP
     //
 
-    auto convert_A = [&, a_vec = Int<COVERSION_WIDTH>{}](int k_block,
-                                                         int read_stage) {
+    auto convert_A = [&, a_vec = Int<CONVERSION_WIDTH>{}](int k_block,
+                                                          int read_stage) {
       load_extra_info_to_registers(partitioned_extra_info,
                                    copy_partitions_extra_info, k_block,
                                    read_stage);
@@ -1297,14 +1297,14 @@ struct MacheteCollectiveMma {
     }
     else if constexpr (ModeHasScales) {
       auto smem_tiled_copy_S = make_tiled_copy_A(SmemCopyAtomScale{}, tiled_mma);
-      auto smem_thr_copy_S   = smem_tiled_copy_S.get_thread_slice(warp_group_thread_idx);
-      Tensor tCrS_copy_view  = smem_thr_copy_S.retile_D(cute::get<1>(partitioned_extra_info));        // (CPY,CPY_M,CPY_K)
+      auto smem_the_copy_S   = smem_tiled_copy_S.get_thread_slice(warp_group_thread_idx);
+      Tensor tCrS_copy_view  = smem_the_copy_S.retile_D(cute::get<1>(partitioned_extra_info));        // (CPY,CPY_M,CPY_K)
       
       if constexpr (KernelConversionMode == ConversionMode::ConvertAndScale) {
         return cute::make_tuple(smem_tiled_copy_S, tCrS_copy_view);
       } 
       else if constexpr (KernelConversionMode == ConversionMode::ConvertAndScaleWithZero) {
-        Tensor tCrZ_copy_view  = smem_thr_copy_S.retile_D(cute::get<3>(partitioned_extra_info));      // (CPY,CPY_M,CPY_K)
+        Tensor tCrZ_copy_view  = smem_the_copy_S.retile_D(cute::get<3>(partitioned_extra_info));      // (CPY,CPY_M,CPY_K)
         return cute::make_tuple(smem_tiled_copy_S, tCrS_copy_view, tCrZ_copy_view);
       } 
       else {

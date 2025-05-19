@@ -342,7 +342,7 @@ def get_gpu_topo(run_lambda):
 #                             fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap
 #                             avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1
 #                             xsaves wbnoinvd ida arat avx512vbmi pku ospke avx512_vbmi2 gfni vaes vpclmulqdq
-#                             avx512_vnni avx512_bitalg tme avx512_vpopcntdq rdpid md_clear flush_l1d arch_capabilities
+#                             avx512_vnni avx512_bitalg time avx512_vpopcntdq rdpid md_clear flush_l1d arch_capabilities
 #    Virtualization features:
 #      Hypervisor vendor:     KVM
 #      Virtualization type:   full

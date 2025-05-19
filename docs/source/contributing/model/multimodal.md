@@ -540,8 +540,8 @@ def _call_hf_processor(
         images = mm_data["images"]
         assert isinstance(images, list)
 
-        # Original output: (1, num_images, Pn, Px * Py * C)
-        # New output: (num_images, Pn, Px * Py * C)
+        # Original output: (1, num_images, On, Px * Py * C)
+        # New output: (num_images, On, Px * Py * C)
         assert (isinstance(image_patches, list)
                 and len(image_patches) == 1)
         assert (isinstance(image_patches[0], torch.Tensor)

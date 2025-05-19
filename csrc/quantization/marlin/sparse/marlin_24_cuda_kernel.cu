@@ -897,7 +897,7 @@ void marlin_cuda_2_4(const void* A, const void* B, const void* meta, void* C,
 
   int max_shared_mem = 0;
   cudaDeviceGetAttribute(&max_shared_mem,
-                         cudaDevAttrMaxSharedMemoryPerBlockOptin, dev);
+                         cudaDevAttrMaxSharedMemoryPerBlockOption, dev);
   TORCH_CHECK(max_shared_mem > 0);
 
   if (thread_k == -1 || thread_m == -1) {

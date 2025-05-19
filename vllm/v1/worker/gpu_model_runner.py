@@ -236,10 +236,10 @@ class GPUModelRunner(LoRAModelRunnerMixin):
 
         # OPTIMIZATION: Cache the tensors rather than creating them every step.
         # Keep in int64 to avoid overflow with long context
-        self.arange_np = np.arange(max(self.max_num_reqs + 1,
-                                       self.max_model_len,
-                                       self.max_num_tokens),
-                                   dtype=np.int64)
+        self.arrange_np = np.arange(max(self.max_num_reqs + 1,
+                                        self.max_model_len,
+                                        self.max_num_tokens),
+                                    dtype=np.int64)
         # NOTE(woosuk): These tensors are "stateless", i.e., they are literally
         # a faster version of creating a new tensor every time. Thus, we should
         # not make any assumptions about the values in these tensors.
@@ -510,7 +510,7 @@ class GPUModelRunner(LoRAModelRunnerMixin):
 
         # Get request indices.
         # E.g., [2, 5, 3] -> [0, 0, 1, 1, 1, 1, 1, 2, 2, 2]
-        req_indices = np.repeat(self.arange_np[:num_reqs],
+        req_indices = np.repeat(self.arrange_np[:num_reqs],
                                 num_scheduled_tokens)
 
         # Get batched arange.
@@ -523,7 +523,7 @@ class GPUModelRunner(LoRAModelRunnerMixin):
         cumsums_offsets = np.repeat(cu_num_tokens - num_scheduled_tokens,
                                     num_scheduled_tokens)
         # Step 3. [0, 1, 0, 1, 2, 3, 4, 0, 1, 2]
-        arange = self.arange_np[:total_num_scheduled_tokens] - cumsums_offsets
+        arange = self.arrange_np[:total_num_scheduled_tokens] - cumsums_offsets
 
         # Get positions.
         positions_np = self.positions_np[:total_num_scheduled_tokens]
@@ -836,7 +836,7 @@ class GPUModelRunner(LoRAModelRunnerMixin):
         cumsums_offsets = np.repeat(cu_num_sampled_tokens - num_sampled_tokens,
                                     num_sampled_tokens)
         # Step 3. [0, 1, 2, 3, 0, 0, 1, 2, 0, 0, 1]
-        arange = self.arange_np[:total_num_sampled_tokens] - cumsums_offsets
+        arange = self.arrange_np[:total_num_sampled_tokens] - cumsums_offsets
         # Step 4. [0, 0, 0, 0, 103, 104, 104, 104, 206, 207, 207]
         logits_indices = np.repeat(
             cu_num_scheduled_tokens - num_sampled_tokens, num_sampled_tokens)
@@ -854,7 +854,7 @@ class GPUModelRunner(LoRAModelRunnerMixin):
         cumsums_offsets = np.repeat(cu_num_draft_tokens - num_draft_tokens,
                                     num_draft_tokens)
         # [0, 1, 2, 0, 1, 0]
-        arange = self.arange_np[:total_num_draft_tokens] - cumsums_offsets
+        arange = self.arrange_np[:total_num_draft_tokens] - cumsums_offsets
         # [0, 0, 0, 5, 5, 9]
         target_logits_indices = np.repeat(
             cu_num_sampled_tokens - num_sampled_tokens, num_draft_tokens)

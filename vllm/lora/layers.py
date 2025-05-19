@@ -928,9 +928,9 @@ class RowParallelLinearWithLoRA(BaseLinearLayerWithLoRA):
             input_parallel = input_
         else:
             # TODO: simplify code below
-            splitted_input = split_tensor_along_last_dim(
+            split_input = split_tensor_along_last_dim(
                 input_, num_partitions=self.base_layer.tp_size)
-            input_parallel = splitted_input[self.tp_rank].contiguous()
+            input_parallel = split_input[self.tp_rank].contiguous()
 
         # Matrix multiply.
         output_parallel = self.apply(input_parallel)
@@ -1201,7 +1201,7 @@ class LinearScalingRotaryEmbeddingWithLoRA(BaseLayerWithLoRA):
     multiple LoRA adapters with a specialized kernel.
 
     Replace LinearScalingRotaryEmbedding with MultiLinearScalingRotaryEmbedding
-    which can handle multi lora adapters in a specialied kernel.
+    which can handle multi lora adapters in a specialized kernel.
     """
 
     def __init__(self, base_layer: RotaryEmbedding) -> None:
