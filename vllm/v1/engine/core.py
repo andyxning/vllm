@@ -1250,6 +1250,25 @@ class EngineCoreProc(EngineCore):
         return init_message.addresses
 
     @staticmethod
+    def _is_data_parallel(vllm_config: VllmConfig, dp_rank: int = 0) -> bool:
+        return vllm_config.parallel_config.data_parallel_size > 1 or dp_rank > 0
+
+    @staticmethod
+    def _use_dp_engine_core_proc(vllm_config: VllmConfig, dp_rank: int = 0) -> bool:
+        return (
+            EngineCoreProc._is_data_parallel(vllm_config, dp_rank)
+            and vllm_config.model_config.is_moe
+        )
+
+    @staticmethod
+    def process_name_and_title(vllm_config: VllmConfig, dp_rank: int = 0) -> str:
+        if EngineCoreProc._use_dp_engine_core_proc(vllm_config, dp_rank):
+            return f"DPEngineCore_DP{dp_rank}"
+        if EngineCoreProc._is_data_parallel(vllm_config, dp_rank):
+            return f"EngineCore_DP{dp_rank}"
+        return "EngineCore"
+
+    @staticmethod
     def run_engine_core(*args, dp_rank: int = 0, local_dp_rank: int = 0, **kwargs):
         """Launch EngineCore busy loop in background process."""
 
@@ -1261,12 +1280,10 @@ class EngineCoreProc(EngineCore):
         try:
             vllm_config: VllmConfig = kwargs["vllm_config"]
             parallel_config: ParallelConfig = vllm_config.parallel_config
-            data_parallel = parallel_config.data_parallel_size > 1 or dp_rank > 0
+            data_parallel = EngineCoreProc._is_data_parallel(vllm_config, dp_rank)
             if data_parallel:
                 parallel_config.data_parallel_rank_local = local_dp_rank
-                process_title = f"EngineCore_DP{dp_rank}"
-            else:
-                process_title = "EngineCore"
+            process_title = EngineCoreProc.process_name_and_title(vllm_config, dp_rank)
             set_process_title(process_title)
             maybe_init_worker_tracer("vllm.engine_core", "engine_core", process_title)
             decorate_logs()
@@ -1285,7 +1302,7 @@ class EngineCoreProc(EngineCore):
                 )
 
             parallel_config.data_parallel_index = dp_rank
-            if data_parallel and vllm_config.model_config.is_moe:
+            if EngineCoreProc._use_dp_engine_core_proc(vllm_config, dp_rank):
                 # Set data parallel rank for this engine process.
                 parallel_config.data_parallel_rank = dp_rank
                 engine_core = DPEngineCoreProc(*args, **kwargs)

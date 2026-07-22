@@ -149,8 +149,6 @@ class CoreEngineProcManager:
         if client_handshake_address:
             common_kwargs["client_handshake_address"] = client_handshake_address
 
-        is_dp = vllm_config.parallel_config.data_parallel_size > 1
-
         from vllm.v1.engine.core import EngineCoreProc
 
         self.processes: list[BaseProcess] = []
@@ -164,7 +162,9 @@ class CoreEngineProcManager:
             self.processes.append(
                 context.Process(
                     target=EngineCoreProc.run_engine_core,
-                    name=f"EngineCore_DP{global_index}" if is_dp else "EngineCore",
+                    name=EngineCoreProc.process_name_and_title(
+                        vllm_config, global_index
+                    ),
                     kwargs=common_kwargs
                     | {"dp_rank": global_index, "local_dp_rank": local_index},
                 )
@@ -179,6 +179,7 @@ class CoreEngineProcManager:
         # the config before each proc.start() works because the spawn method
         # pickles process args at start() time, sequentially per rank.
         user_assigned_gpu_ids = vllm_config.parallel_config.assigned_physical_gpu_ids
+        is_dp = vllm_config.parallel_config.data_parallel_size > 1
         try:
             for proc, local_dp_rank in zip(self.processes, local_dp_ranks):
                 # Populate the logical-to-physical GPU mapping in DP for
