@@ -75,6 +75,7 @@ async def serve_http(
     config.load()
     server = uvicorn.Server(config)
     app.state.server = server
+    app.state.graceful_shutdown = False
 
     loop = asyncio.get_running_loop()
 
@@ -99,6 +100,7 @@ async def serve_http(
             return
         logger.info_once("[shutdown] API server: shutdown triggered")
         shutdown_event.set()
+        app.state.graceful_shutdown = True
 
     async def dummy_shutdown() -> None:
         pass
@@ -110,6 +112,10 @@ async def serve_http(
         await shutdown_event.wait()
 
         engine_client = app.state.engine_client
+
+        while engine_client.is_running():
+            await asyncio.sleep(1)
+
         timeout = engine_client.vllm_config.shutdown_timeout
         mode = "abort" if timeout == 0 else "drain"
 

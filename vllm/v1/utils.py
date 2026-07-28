@@ -319,7 +319,7 @@ class APIServerProcessManager:
         self._address_pipes = []
 
         if self._finalizer.detach() is not None:
-            shutdown(self.processes, timeout=timeout)
+            shutdown(self.processes, timeout=timeout, trigger_shutdown_only=True)
 
 
 class RustFrontendProcessManager:
@@ -587,7 +587,11 @@ def wait_for_completion_or_failure(
 
 # Note(rob): shutdown function cannot be a bound method,
 # else the gc cannot collect the object.
-def shutdown(procs: list[BaseProcess], timeout: float | None = None) -> None:
+def shutdown(
+    procs: list[BaseProcess],
+    timeout: float | None = None,
+    trigger_shutdown_only: bool = False,
+) -> None:
     """Shutdown processes with timeout.
 
     Args:
@@ -609,6 +613,9 @@ def shutdown(procs: list[BaseProcess], timeout: float | None = None) -> None:
     for proc in procs:
         if proc.is_alive():
             proc.terminate()
+
+    if trigger_shutdown_only:
+        return
 
     # Allow time for remaining procs to terminate.
     deadline = time.monotonic() + timeout

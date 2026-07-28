@@ -40,6 +40,43 @@ logger = init_logger("vllm.entrypoints.openai.server_utils")
 
 
 GUARDED_PREFIX = ("/v1", "/v2", "/inference")
+GRACEFUL_SHUTDOWN_EXCLUDED_URL_PATH = ("/health", "/metrics")
+
+
+class GracefulShutdownMiddleware:
+    """
+    Middleware that checks if the server is currently gracefully shutdown and
+    returns a 503 Service Unavailable response for non-GET requests if it is.
+
+    This middleware applies to all non-GET HTTP requests and prevents
+    processing when the model is in a scaling state.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    def __call__(self, scope: Scope, receive: Receive, send: Send) -> Awaitable[None]:
+        if scope["type"] not in ("http", "websocket"):
+            # scope["type"] can be "lifespan" or "startup" for example,
+            # in which case we don't need to do anything
+            return self.app(scope, receive, send)
+
+        # Check graceful shutdown status
+        if (
+            hasattr(self.app.state, "graceful_shutdown")
+            and self.app.state.graceful_shutdown
+        ):
+            root_path = scope.get("root_path", "")
+            url_path = scope["path"].removeprefix(root_path)
+            if not url_path.startswith(GRACEFUL_SHUTDOWN_EXCLUDED_URL_PATH):
+                # Return 503 Service Unavailable response
+                response = JSONResponse(
+                    content={"error": "The server is currently shutting down."},
+                    status_code=503,
+                )
+                return response(scope, receive, send)
+
+        return self.app(scope, receive, send)
 
 
 class AuthenticationMiddleware:

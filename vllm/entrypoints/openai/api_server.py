@@ -42,6 +42,7 @@ from vllm.entrypoints.serve.utils.api_utils import (
 )
 from vllm.entrypoints.serve.utils.request_logger import RequestLogger
 from vllm.entrypoints.serve.utils.server_utils import (
+    GracefulShutdownMiddleware,
     engine_error_handler,
     exception_handler,
     generation_error_handler,
@@ -276,6 +277,7 @@ def build_app(
     _attach_endpoint_plugins(app, supported_tasks)
 
     app.root_path = args.root_path
+    app.add_middleware(GracefulShutdownMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=args.allowed_origins,

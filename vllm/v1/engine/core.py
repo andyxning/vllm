@@ -1430,9 +1430,8 @@ class EngineCoreProc(EngineCore):
             mode = "abort" if shutdown_timeout == 0 else "drain"
 
             logger.info(
-                "[shutdown] EngineCore: start mode=%s timeout=%ds",
+                "[shutdown] EngineCore: start mode=%s",
                 mode,
-                shutdown_timeout,
             )
 
             if shutdown_timeout == 0:
